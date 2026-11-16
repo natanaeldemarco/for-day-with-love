@@ -36,9 +36,9 @@ window.FDWL_CONFIG = {
 
   /* ---------- Escena 2 · Nuestro vinilo ---------- */
   music: {
-    youtubeId: "5Ipg_Aof1SM",          // https://www.youtube.com/watch?v=5Ipg_Aof1SM
-    title: "Saturno",
-    artist: "Pablo Alborán",
+    youtubeId: "6cjUGT6vcfU",          // https://www.youtube.com/watch?v=6cjUGT6vcfU
+    title: "Eres",
+    artist: "Café Tacvba",
     labelTop: "DAY",
     labelBottom: "16 · III · 2026",
     startVolume: 70,
