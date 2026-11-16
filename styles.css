@@ -188,11 +188,12 @@ button:focus-visible, [role="button"]:focus-visible { outline: 1.5px solid var(-
 .envelope.is-rising .env-card { transform: translateY(-62%); }
 
 /* cuando la tarjeta sale, se convierte en protagonista */
-.scene-invite.card-out .envelope { transform: translateY(34vh) scale(.78) rotate(4deg); opacity: .55; transition: transform 1.2s var(--ease-soft), opacity 1.2s; animation: none; }
+.scene-invite.card-out .env-slot { pointer-events: none; z-index: 5 !important; }
+.scene-invite.card-out .envelope { pointer-events: none; transform: translateY(34vh) scale(.78) rotate(4deg); opacity: .55; transition: transform 1.2s var(--ease-soft), opacity 1.2s; animation: none; }
 .scene-invite.card-out .invite-head,
 .scene-invite.card-out .invite-hint { opacity: 0 !important; transform: translateY(-20px); animation: none; }
 .card-stage {
-  position: absolute; z-index: 10; left: 50%; top: 50%;
+  position: absolute; z-index: 200; left: 50%; top: 50%;
   width: min(86vw, 360px);
   transform: translate(-50%, -50%) rotate(-1deg);
   background: var(--crema) url("assets/textures/paper.webp") center / cover;
