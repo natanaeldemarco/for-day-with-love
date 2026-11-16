@@ -1,0 +1,5 @@
+Tipografías incluidas (todas con licencia libre SIL Open Font License 1.1):
+- Cormorant Garamond — Christian Thalmann (Catharsis Fonts)
+- EB Garamond — Georg Duffner / Octavio Pardo
+- Caveat — Impallari Type
+Fuente: https://github.com/google/fonts
