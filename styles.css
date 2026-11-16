@@ -319,9 +319,9 @@ button:focus-visible, [role="button"]:focus-visible { outline: 1.5px solid var(-
   background: radial-gradient(80% 60% at 50% 35%, rgba(240, 229, 210, .08), transparent 70%), url("assets/textures/grain.png");
   opacity: .9; pointer-events: none;
 }
-.moments { position: relative; width: min(92vw, 420px); flex: 1 0 auto; min-height: 470px; }
+.moments { position: relative; width: min(92vw, 420px); display: grid; flex: none; }
 .moment {
-  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center;
+  grid-area: 1 / 1; position: relative; display: flex; flex-direction: column; align-items: center;
   opacity: 0; visibility: hidden; transform: translateX(30px);
   transition: opacity .9s var(--ease-soft), transform 1s var(--ease-soft), visibility 0s .9s;
 }
@@ -339,7 +339,7 @@ button:focus-visible, [role="button"]:focus-visible { outline: 1.5px solid var(-
 .moment[data-layout="c"] .moment-text { margin: 0 0 14px; }
 .moment[data-layout="d"] .moment-text { text-align: right; align-self: flex-end; padding-right: 8px; transform: rotate(1deg); }
 
-.moment-nav { display: flex; align-items: center; gap: 18px; margin-top: 18px; }
+.moment-nav { display: flex; align-items: center; gap: 18px; margin-top: 22px; position: relative; z-index: 5; }
 .icon-btn { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; color: var(--crema); box-shadow: inset 0 0 0 1px rgba(182, 154, 104, .55); transition: transform .2s, opacity .3s; }
 .icon-btn:active { transform: scale(.92); }
 .icon-btn:disabled { opacity: .3; }
@@ -468,7 +468,6 @@ button:focus-visible, [role="button"]:focus-visible { outline: 1.5px solid var(-
 /* pantallas bajitas */
 @media (max-height: 700px) {
   .invite-head { margin-bottom: 22px; }
-  .moments { min-height: 430px; }
 }
 
 /* textos dentro de ilustraciones SVG */
