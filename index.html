@@ -26,7 +26,9 @@
         <p class="invite-sub" data-text="invitation.subtitle"></p>
       </header>
 
-      <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Abrir el sobre">
+      <div class="env-field" id="envField">
+      <div class="env-slot" id="slotCorrect"><div class="env-wobble">
+      <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Sobre que dice: para Day">
         <div class="env-back"></div>
         <div class="env-card" id="envCard">
           <div class="card-inner">
@@ -45,7 +47,7 @@
           <path d="M320 0 L160 118 L320 210 Z" fill="#dac7a6"/>
           <path d="M0 210 L160 96 L320 210 Z" fill="url(#envB)"/>
           <path d="M0 210 L160 96 L320 210" fill="none" stroke="rgba(120,90,60,.25)" stroke-width="1"/>
-          <text x="226" y="186" class="env-to">para Day</text>
+          <text x="160" y="184" text-anchor="middle" class="env-to" data-text="invitation.correctLabel">para Day</text>
         </svg>
         <div class="env-flap" id="envFlap">
           <svg viewBox="0 0 320 130" preserveAspectRatio="none" aria-hidden="true">
@@ -54,7 +56,9 @@
           <img class="env-seal" src="assets/illustrations/seal.webp" alt="" width="70" height="70">
         </div>
       </div>
-      <p class="invite-hint" data-text="invitation.hint"></p>
+      </div></div>
+      </div>
+      <p class="invite-hint" id="inviteHint" data-text="invitation.hint" aria-live="polite"></p>
     </section>
 
     <!-- ================= ESCENA 2 · NUESTRO VINILO ================= -->
