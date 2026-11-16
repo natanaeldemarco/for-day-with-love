@@ -637,7 +637,7 @@
     momentIndex = i;
     $$("button", momDots).forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
     $("#momPrev").disabled = i === 0;
-    $("#momNext").disabled = i === momentEls.length - 1;
+    $("#momNext").setAttribute("aria-label", i === momentEls.length - 1 ? "Seguir a la próxima escena" : "Fecha siguiente");
     const art = momentEls[i];
     prepareDraw(art);
     playDraw(art, 0.5);
