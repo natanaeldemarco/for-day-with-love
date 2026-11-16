@@ -348,8 +348,114 @@
     spawnPetals(22);
     setTimeout(() => btn.focus({ preventScroll: true }), 1800);
   }
-  envelope.addEventListener("click", openEnvelope);
-  envelope.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openEnvelope(); } });
+  /* --- búsqueda: muchos sobres, uno solo es el correcto --- */
+  const field = $("#envField");
+  const slotCorrect = $("#slotCorrect");
+  const hintEl = $("#inviteHint");
+  let found = false, wrongCount = 0, slots = [slotCorrect];
+
+  function buildDecoys() {
+    const isBig = Math.min(window.innerWidth, window.innerHeight) >= 600;
+    const n = isBig ? (C.invitation.decoysTablet || 8) : (C.invitation.decoysPhone || 7);
+    const labels = C.invitation.decoyLabels.slice();
+    for (let i = 0; i < n; i++) {
+      const slot = slotCorrect.cloneNode(true);
+      slot.removeAttribute("id");
+      $$("[id]", slot).forEach((el) => el.removeAttribute("id"));
+      $$(".env-card, defs", slot).forEach((el) => el.remove());
+      const env = $(".envelope", slot);
+      const label = labels[i % labels.length];
+      $(".env-to", env).textContent = label;
+      env.setAttribute("aria-label", `Sobre que dice: ${label}`);
+      slot.classList.add("is-decoy");
+      env.addEventListener("click", () => wrong(slot));
+      env.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); wrong(slot); } });
+      field.appendChild(slot);
+      slots.push(slot);
+    }
+    // mezclar el orden para que el correcto caiga en cualquier lugar
+    for (let i = slots.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [slots[i], slots[j]] = [slots[j], slots[i]]; }
+    slots.forEach((sl, i) => {
+      sl.dataset.r = ((Math.random() - 0.5) * 26).toFixed(1);
+      sl.dataset.jx = (Math.random() - 0.5).toFixed(3);
+      sl.dataset.jy = (Math.random() - 0.5).toFixed(3);
+      $(".envelope", sl).style.animationDelay = `${(0.5 + i * 0.12).toFixed(2)}s, ${(2.6 + i * 0.37).toFixed(2)}s`;
+    });
+    layoutEnvelopes();
+  }
+
+  function layoutEnvelopes() {
+    if (found) return centerCorrect();
+    const W = field.clientWidth, H = field.clientHeight;
+    if (!W || !H) return;
+    const w0 = slotCorrect.offsetWidth, h0 = slotCorrect.offsetHeight;
+    const n = slots.length;
+    let best = null;
+    for (let cols = 2; cols <= 4; cols++) {
+      const rows = Math.ceil(n / cols);
+      const s = Math.min((W / cols) * 0.88 / w0, (H / rows) * 0.8 / h0, 0.78);
+      if (!best || s > best.s) best = { cols, rows, s };
+    }
+    const { cols, rows, s } = best;
+    const cw = W / cols, ch = H / rows;
+    slots.forEach((sl, i) => {
+      const r = Math.floor(i / cols), c = i % cols;
+      const inRow = r === rows - 1 ? n - r * cols : cols;      // centrar la última fila
+      const offset = (cols - inRow) * cw / 2;
+      const x = offset + c * cw + cw / 2 + Number(sl.dataset.jx) * cw * 0.16;
+      const y = r * ch + ch / 2 + Number(sl.dataset.jy) * ch * 0.14;
+      sl.style.setProperty("--x", `${x.toFixed(1)}px`);
+      sl.style.setProperty("--y", `${y.toFixed(1)}px`);
+      sl.style.setProperty("--r", `${sl.dataset.r}deg`);
+      sl.style.setProperty("--s", s.toFixed(3));
+      sl.style.zIndex = String(10 + i);
+    });
+  }
+  function centerCorrect() {
+    slotCorrect.style.setProperty("--x", `${field.clientWidth / 2}px`);
+    slotCorrect.style.setProperty("--y", `${field.clientHeight / 2}px`);
+    slotCorrect.style.setProperty("--r", "-1.5deg");
+    slotCorrect.style.setProperty("--s", "1");
+  }
+
+  function wrong(slot) {
+    if (found) return;
+    wrongCount++;
+    const wob = $(".env-wobble", slot);
+    wob.classList.remove("nope"); void wob.offsetWidth; wob.classList.add("nope");
+    slot.classList.add("is-tried");
+    const msgs = C.invitation.wrongMessages;
+    const lbl = $(".env-to", slot);
+    lbl.textContent = msgs[(wrongCount - 1) % msgs.length];
+    lbl.classList.add("is-msg");
+    if (navigator.vibrate) { try { navigator.vibrate(30); } catch (e) {} }
+    if (wrongCount >= (C.invitation.clueAfter || 3)) {
+      hintEl.textContent = C.invitation.clue;
+      slotCorrect.classList.add("is-hinted");
+    }
+  }
+
+  async function chooseCorrect() {
+    if (found) return;
+    found = true;
+    $(".scene-invite").classList.add("is-found");
+    slots.forEach((sl) => { if (sl !== slotCorrect) {
+      const a = Math.atan2(parseFloat(sl.style.getPropertyValue("--y")) - field.clientHeight / 2, parseFloat(sl.style.getPropertyValue("--x")) - field.clientWidth / 2);
+      sl.style.setProperty("--x", `${field.clientWidth / 2 + Math.cos(a) * field.clientWidth}px`);
+      sl.style.setProperty("--y", `${field.clientHeight / 2 + Math.sin(a) * field.clientHeight}px`);
+      sl.classList.add("is-gone");
+    } });
+    slotCorrect.classList.remove("is-hinted");
+    slotCorrect.style.zIndex = "60";
+    centerCorrect();
+    spawnPetals(10, 1200);
+    await wait(reduceMotion ? 50 : 1300);
+    openEnvelope();
+  }
+
+  envelope.addEventListener("click", chooseCorrect);
+  envelope.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); chooseCorrect(); } });
+  window.addEventListener("resize", () => { if (current === 0 && !envOpened) layoutEnvelopes(); });
   $("#openWorld").addEventListener("click", (e) => { e.stopPropagation(); spawnPetals(8, 800); goTo(1); });
 
   /* ---------------- escena 2 · vinilo + YouTube ---------------- */
@@ -634,6 +740,7 @@
   /* ---------------- escena 5 · carta ---------------- */
   const letterEl = $("#letter");
   const body = $("#letterBody");
+  const signOff = Math.max(1, C.letter.signOffLines || 1);
   let typing = null;
   function startLetter() {
     const paras = C.letter.paragraphs;
@@ -643,17 +750,22 @@
     playDraw(flora, 0.3);
     if (reduceMotion) { renderAll(); return finishLetter(); }
 
-    let p = 0, c = 0, node = null;
+    let p = 0, c = 0, node = null, userScrolled = false;
+    const sc = $(".scene-scroll", scenes[4]);
+    sc.addEventListener("touchmove", () => { userScrolled = true; }, { passive: true, once: true });
+    sc.addEventListener("wheel", () => { userScrolled = true; }, { passive: true, once: true });
     const caret = document.createElement("span");
     caret.className = "caret";
     const speed = Math.max(8, C.letter.typingSpeed || 28);
     const newPara = () => {
       const el = document.createElement("p");
-      if (p === paras.length - 1) el.className = "sign-off";
+      if (p >= paras.length - signOff) el.className = "sign-off";
       node = document.createTextNode("");
       el.appendChild(node);
       el.appendChild(caret);
       body.appendChild(el);
+      // acompaña la escritura con el scroll, salvo que Day esté leyendo más arriba
+      if (!userScrolled && p > 0) el.scrollIntoView({ block: "center", behavior: "smooth" });
     };
     newPara();
     const step = () => {
@@ -678,7 +790,7 @@
     body.innerHTML = "";
     C.letter.paragraphs.forEach((t, i, a) => {
       const el = document.createElement("p");
-      if (i === a.length - 1) el.className = "sign-off";
+      if (i >= a.length - signOff) el.className = "sign-off";
       el.textContent = t;
       body.appendChild(el);
     });
@@ -714,12 +826,15 @@
     $(".letter-flora").innerHTML = cornerFlora();
     $(".finale-flowers").innerHTML = bouquet();
     updateNav();
+    buildDecoys();
     // enlace directo a una escena (útil para probar): #escena-3
     const m = location.hash.match(/escena-(\d)/);
     if (m) {
       const n = Math.min(scenes.length, Math.max(1, Number(m[1]))) - 1;
       if (n > 0) {
-        envOpened = true;
+        envOpened = true; found = true;
+        slots.forEach((sl) => { if (sl !== slotCorrect) sl.classList.add("is-gone"); });
+        centerCorrect();
         const sceneInv = $(".scene-invite");
         sceneInv.classList.add("card-out");
         envelope.classList.add("is-open", "is-rising");
